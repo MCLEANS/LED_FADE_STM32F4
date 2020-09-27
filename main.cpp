@@ -1,14 +1,45 @@
 #include "stm32f4xx.h"
 #include "clockconfig.h"
 #include "Timerconfiguration.h"
+#include "PWM.h"
 
 #define DELAY_PRESCALER  65
 #define DELAY_ARR_VALUE 640
 
+#define LED_PRESCALER 1000;
+#define LED_ARR_VALUE 1000;
+
 volatile uint32_t delay_counter = 0;
+
+uint8_t duty_cycle = 0;
+
+bool count_up = true;
 
 custom_libraries::clock_config system_clock;
 custom_libraries::Timer_configuration delay_timer(TIM3,DELAY_PRESCALER,DELAY_ARR_VALUE);
+custom_libraries::PWM red_led(TIM8,
+                            custom_libraries::channel1,
+                            GPIOC,
+                            6,
+                            custom_libraries::AF3,
+                            1000,
+                            100);
+
+custom_libraries::PWM blue_led(TIM9,
+                            custom_libraries::channel1,
+                            GPIOE,
+                            5,
+                            custom_libraries::AF3,
+                            1000,
+                            100);
+
+custom_libraries::PWM green_led(TIM9,
+                            custom_libraries::channel2,
+                            GPIOE,
+                            6,
+                            custom_libraries::AF3,
+                            1000,
+                            100);
 
 //delay timer Interrupt service routine
 extern "C" void TIM3_IRQHandler(void){
@@ -30,21 +61,41 @@ int main(void) {
   system_clock.initialize();
   delay_timer.initialize();
 
+  red_led.begin();
+  red_led.set_duty_cycle(0);
+
+  blue_led.begin();
+  blue_led.set_duty_cycle(100);
+
+  green_led.begin();
+  green_led.set_duty_cycle(duty_cycle);
+
   //Set delay timer Interrupt priority and Enable
   NVIC_SetPriority(TIM3_IRQn,0x02);
-  NVIC_EnableIRQ(TIM3_IRQn);
-
-  RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN;
-  
-  GPIOA->MODER |= GPIO_MODER_MODER7_0;
-  GPIOA->MODER |= GPIO_MODER_MODER6_0;
-
-  GPIOA->ODR |= GPIO_ODR_ODR_6;
-  GPIOA->ODR &= ~GPIO_ODR_ODR_7;  
+  NVIC_EnableIRQ(TIM3_IRQn); 
 
   while(1){
-    delay_ms(500);
-    GPIOA->ODR ^= (1<<6);
-    GPIOA->ODR ^= (1<<7);
+   
+
+    
+  
+    green_led.set_duty_cycle(duty_cycle);
+
+    for(volatile int i = 0; i < 100; i++){
+      red_led.set_duty_cycle(i);
+      blue_led.set_duty_cycle(100-i);
+       delay_ms(30);
+    }
+    for(volatile int i = 0; i < 100; i++){
+      red_led.set_duty_cycle(100-i);
+      blue_led.set_duty_cycle(i);
+       delay_ms(30);
+    }
+
+    if(duty_cycle == 0) count_up = true;
+    if(duty_cycle ==  100) count_up = false;
+
+    if(count_up) duty_cycle++;
+    if(!count_up)duty_cycle--;
   }
 }
