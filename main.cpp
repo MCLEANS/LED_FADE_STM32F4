@@ -61,12 +61,15 @@ int main(void) {
   system_clock.initialize();
   delay_timer.initialize();
 
+  //configure red LED PWM
   red_led.begin();
   red_led.set_duty_cycle(duty_cycle);
 
+  //configure blue LED PWM
   blue_led.begin();
   blue_led.set_duty_cycle(100-duty_cycle);
 
+  //configure green LED PWM
   green_led.begin();
   green_led.set_duty_cycle(duty_cycle);
 
@@ -89,6 +92,6 @@ int main(void) {
       green_led.set_duty_cycle(100-i);
        delay_ms(20);
     }
-    
+
   }
 }
