@@ -62,10 +62,10 @@ int main(void) {
   delay_timer.initialize();
 
   red_led.begin();
-  red_led.set_duty_cycle(0);
+  red_led.set_duty_cycle(duty_cycle);
 
   blue_led.begin();
-  blue_led.set_duty_cycle(100);
+  blue_led.set_duty_cycle(100-duty_cycle);
 
   green_led.begin();
   green_led.set_duty_cycle(duty_cycle);
@@ -74,28 +74,19 @@ int main(void) {
   NVIC_SetPriority(TIM3_IRQn,0x02);
   NVIC_EnableIRQ(TIM3_IRQn); 
 
-  while(1){
-   
-
-    
-  
-    green_led.set_duty_cycle(duty_cycle);
+  while(1){    
 
     for(volatile int i = 0; i < 100; i++){
       red_led.set_duty_cycle(i);
       blue_led.set_duty_cycle(100-i);
-       delay_ms(30);
+      green_led.set_duty_cycle(i);
+       delay_ms(20);
     }
     for(volatile int i = 0; i < 100; i++){
       red_led.set_duty_cycle(100-i);
       blue_led.set_duty_cycle(i);
-       delay_ms(30);
+      green_led.set_duty_cycle(100-i);
+       delay_ms(20);
     }
-
-    if(duty_cycle == 0) count_up = true;
-    if(duty_cycle ==  100) count_up = false;
-
-    if(count_up) duty_cycle++;
-    if(!count_up)duty_cycle--;
   }
 }
