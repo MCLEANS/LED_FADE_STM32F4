@@ -82,11 +82,13 @@ int main(void) {
       green_led.set_duty_cycle(i);
        delay_ms(20);
     }
+
     for(volatile int i = 0; i < 100; i++){
       red_led.set_duty_cycle(100-i);
       blue_led.set_duty_cycle(i);
       green_led.set_duty_cycle(100-i);
        delay_ms(20);
     }
+    
   }
 }
