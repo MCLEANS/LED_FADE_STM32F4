@@ -46,6 +46,5 @@ int main(void) {
     delay_ms(500);
     GPIOA->ODR ^= (1<<6);
     GPIOA->ODR ^= (1<<7);
-
   }
 }
